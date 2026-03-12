@@ -36,7 +36,6 @@
             min-height: 100vh;
         }
 
-        /* Ambient Background */
         .ambient-bg {
             position: fixed;
             top: 0;
@@ -94,7 +93,6 @@
             z-index: 1;
         }
 
-        /* Main Container */
         .container {
             position: relative;
             z-index: 10;
@@ -104,7 +102,6 @@
             min-height: 100vh;
         }
 
-        /* Header */
         .header {
             text-align: center;
             margin-bottom: 60px;
@@ -150,7 +147,6 @@
             text-transform: uppercase;
         }
 
-        /* Menu Grid */
         .menu-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -222,18 +218,6 @@
             position: relative;
         }
 
-        .menu-badge::before {
-            content: '';
-            position: absolute;
-            top: 2px;
-            left: 10%;
-            right: 10%;
-            height: 40%;
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.25) 0%, transparent 100%);
-            border-radius: 50%;
-            pointer-events: none;
-        }
-
         .menu-item:hover .menu-badge {
             transform: scale(1.1);
             box-shadow: 0 0 20px var(--glow-cyan);
@@ -253,7 +237,6 @@
             letter-spacing: 3px;
         }
 
-        /* Content Sections */
         .content-section {
             display: none;
             opacity: 0;
@@ -270,7 +253,6 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Back Button */
         .back-btn {
             position: fixed;
             top: 20px;
@@ -297,7 +279,6 @@
             box-shadow: 0 0 20px var(--glow-cyan);
         }
 
-        /* Section Header */
         .section-header {
             text-align: center;
             margin-bottom: 40px;
@@ -320,7 +301,6 @@
             letter-spacing: 2px;
         }
 
-        /* Glass Cards */
         .glass-card {
             background: var(--glass-bg);
             backdrop-filter: blur(20px);
@@ -343,14 +323,6 @@
             background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
         }
 
-        .glass-card:hover {
-            background: rgba(255, 255, 255, 0.05);
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-            border-color: rgba(0, 240, 255, 0.2);
-        }
-
-        /* Form Styles */
         .form-section {
             margin-bottom: 30px;
         }
@@ -413,7 +385,6 @@
             min-height: 100px;
         }
 
-        /* Items Table */
         .items-table {
             width: 100%;
             border-collapse: collapse;
@@ -482,7 +453,6 @@
             box-shadow: 0 0 20px rgba(0, 240, 255, 0.25);
         }
 
-        /* Summary */
         .summary-box {
             background: rgba(0, 240, 255, 0.03);
             border: 1px solid var(--glass-border);
@@ -510,7 +480,6 @@
             background-clip: text;
         }
 
-        /* Action Buttons */
         .action-buttons {
             display: flex;
             gap: 12px;
@@ -530,6 +499,7 @@
             flex: 1;
             min-width: 150px;
             text-transform: uppercase;
+            font-family: 'Outfit', sans-serif;
         }
 
         .btn-download {
@@ -579,7 +549,6 @@
             border-color: rgba(255, 255, 255, 0.3);
         }
 
-        /* Preview */
         .preview-box {
             background: var(--glass-bg);
             border: 1px solid var(--glass-border);
@@ -592,13 +561,6 @@
         .invoice-preview {
             font-size: 13px;
             line-height: 1.8;
-        }
-
-        .invoice-preview h4 {
-            color: var(--primary);
-            font-size: 16px;
-            margin-bottom: 15px;
-            margin-top: 20px;
         }
 
         .success-msg {
@@ -623,25 +585,26 @@
             to { opacity: 1; transform: translateY(0); }
         }
 
-        /* Responsive */
+        /* ===== PDF PRINT ELEMENT - HIDDEN ON SCREEN ===== */
+        #pdfPrintArea {
+            position: absolute;
+            left: -9999px;
+            top: 0;
+            width: 794px; /* A4 width in px at 96dpi */
+            background: #ffffff;
+            font-family: 'Outfit', Arial, sans-serif;
+            color: #111111;
+            padding: 40px;
+        }
+
         @media (max-width: 768px) {
             .menu-grid {
                 grid-template-columns: repeat(2, 1fr);
                 max-width: 100%;
             }
-
-            .section-title {
-                font-size: 32px;
-            }
-
-            .action-buttons {
-                flex-direction: column;
-            }
-
-            .btn-action {
-                width: 100%;
-            }
-
+            .section-title { font-size: 32px; }
+            .action-buttons { flex-direction: column; }
+            .btn-action { width: 100%; }
             .back-btn {
                 position: relative;
                 top: auto;
@@ -652,27 +615,21 @@
         }
 
         @media print {
-            .menu-grid, .back-btn, .action-buttons, .form-section {
-                display: none;
-            }
-
-            .preview-box {
-                border: none;
-                background: transparent;
-                padding: 0;
-            }
+            .menu-grid, .back-btn, .action-buttons, .form-section { display: none; }
+            .preview-box { border: none; background: transparent; padding: 0; }
         }
     </style>
 </head>
 <body>
-    <!-- Background Effects -->
     <div class="ambient-bg">
         <div class="orb orb-1"></div>
         <div class="orb orb-2"></div>
     </div>
     <div class="grid-overlay"></div>
 
-    <!-- Main Container -->
+    <!-- Hidden PDF Render Area -->
+    <div id="pdfPrintArea"></div>
+
     <div class="container">
         <!-- Home Screen -->
         <div class="content-section active" id="homeSection">
@@ -710,7 +667,6 @@
             <div class="glass-card">
                 <div class="success-msg" id="successMsg">✓ Invoice saved successfully!</div>
 
-                <!-- Invoice Details -->
                 <div class="form-section">
                     <h3>Invoice Details</h3>
                     <div class="form-row">
@@ -729,7 +685,6 @@
                     </div>
                 </div>
 
-                <!-- Client Details -->
                 <div class="form-section">
                     <h3>Bill To (Client)</h3>
                     <div class="form-row">
@@ -758,7 +713,6 @@
                     </div>
                 </div>
 
-                <!-- Items -->
                 <div class="form-section">
                     <h3>Items / Services</h3>
                     <table class="items-table">
@@ -788,7 +742,6 @@
                     <button type="button" class="btn-add-item" onclick="addItem()">+ Add Item</button>
                 </div>
 
-                <!-- Summary -->
                 <div class="summary-box">
                     <div class="summary-row">
                         <span>Subtotal:</span>
@@ -808,7 +761,6 @@
                     </div>
                 </div>
 
-                <!-- Action Buttons -->
                 <div class="action-buttons">
                     <button class="btn-action btn-download" onclick="downloadPDF()">📥 Download PDF</button>
                     <button class="btn-action btn-print" onclick="printInvoice()">🖨️ Print</button>
@@ -816,7 +768,6 @@
                     <button class="btn-action btn-clear" onclick="clearForm()">🔄 Clear</button>
                 </div>
 
-                <!-- Preview -->
                 <div class="preview-box">
                     <h3 style="color: var(--primary); margin-bottom: 20px;">📋 Invoice Preview</h3>
                     <div id="invoicePreview" class="invoice-preview">
@@ -828,14 +779,9 @@
     </div>
 
     <script>
-        /* ===== ENHANCED NEXAVERSE INVOICE MAKER JAVASCRIPT ===== */
-        /* Modern animations, smooth transitions, and interactive features */
-
-        // Global variables
         let allInvoices = JSON.parse(localStorage.getItem('jmInvoices')) || [];
         let isTransitioning = false;
 
-        // Initialize on page load
         window.addEventListener('load', () => {
             initializeApp();
         });
@@ -844,113 +790,45 @@
             document.getElementById('invoiceDate').valueAsDate = new Date();
             setupEventListeners();
             calculateAmounts();
-            addEnterKeySupport();
         }
 
-        // Setup Event Listeners
         function setupEventListeners() {
-            // Input listeners for real-time preview
-            document.getElementById('invoiceNo').addEventListener('change', updatePreview);
-            document.getElementById('invoiceDate').addEventListener('change', updatePreview);
-            document.getElementById('dueDate').addEventListener('change', updatePreview);
-            document.getElementById('clientName').addEventListener('input', updatePreview);
-            document.getElementById('clientEmail').addEventListener('input', updatePreview);
-            document.getElementById('clientAddress').addEventListener('input', updatePreview);
-            document.getElementById('clientCity').addEventListener('input', updatePreview);
-            document.getElementById('clientPhone').addEventListener('input', updatePreview);
-        }
-
-        // Add Enter key support for adding items
-        function addEnterKeySupport() {
-            document.addEventListener('keypress', (e) => {
-                if (e.key === 'Enter' && e.ctrlKey) {
-                    addItem();
-                }
+            ['invoiceNo','invoiceDate','dueDate','clientName','clientEmail','clientAddress','clientCity','clientPhone'].forEach(id => {
+                document.getElementById(id).addEventListener('input', updatePreview);
+                document.getElementById(id).addEventListener('change', updatePreview);
             });
         }
 
-        // ===== NAVIGATION & ANIMATIONS =====
         function showSection(sectionId) {
             if (isTransitioning) return;
             isTransitioning = true;
 
-            const homeSection = document.getElementById('homeSection');
-            const targetSection = document.getElementById(sectionId);
-
-            // Fade out home section
-            homeSection.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-            homeSection.style.opacity = '0';
-            homeSection.style.transform = 'translateY(-20px)';
+            const sections = document.querySelectorAll('.content-section');
+            sections.forEach(s => {
+                s.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+                s.style.opacity = '0';
+                s.style.transform = 'translateY(-20px)';
+            });
 
             setTimeout(() => {
-                homeSection.classList.remove('active');
-                targetSection.classList.add('active');
-                
-                // Fade in target section
-                targetSection.style.opacity = '0';
-                targetSection.style.transform = 'translateY(20px)';
-                
-                // Force reflow
-                void targetSection.offsetWidth;
-                
-                targetSection.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-                targetSection.style.opacity = '1';
-                targetSection.style.transform = 'translateY(0)';
-
+                sections.forEach(s => s.classList.remove('active'));
+                const target = document.getElementById(sectionId);
+                target.classList.add('active');
+                target.style.opacity = '0';
+                target.style.transform = 'translateY(20px)';
+                void target.offsetWidth;
+                target.style.transition = 'opacity 0.4s ease, transform 0.4s ease';
+                target.style.opacity = '1';
+                target.style.transform = 'translateY(0)';
                 window.scrollTo(0, 0);
                 isTransitioning = false;
-            }, 500);
+            }, 400);
         }
 
-        // Back to menu with smooth animation
-        function backToMenu() {
-            if (isTransitioning) return;
-            isTransitioning = true;
-
-            const activeSection = document.querySelector('.content-section.active');
-            const homeSection = document.getElementById('homeSection');
-
-            if (activeSection) {
-                // Fade out active section
-                activeSection.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-                activeSection.style.opacity = '0';
-                activeSection.style.transform = 'translateY(-20px)';
-
-                setTimeout(() => {
-                    activeSection.classList.remove('active');
-                    homeSection.classList.add('active');
-                    
-                    // Fade in home section
-                    homeSection.style.opacity = '0';
-                    homeSection.style.transform = 'translateY(20px)';
-                    
-                    // Force reflow
-                    void homeSection.offsetWidth;
-                    
-                    homeSection.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
-                    homeSection.style.opacity = '1';
-                    homeSection.style.transform = 'translateY(0)';
-
-                    window.scrollTo(0, 0);
-                    isTransitioning = false;
-                }, 500);
-            }
-        }
-
-        // Override back button
-        document.addEventListener('DOMContentLoaded', () => {
-            const backBtn = document.querySelector('.back-btn');
-            if (backBtn) {
-                backBtn.addEventListener('click', backToMenu);
-            }
-        });
-
-        // ===== INVOICE ITEM MANAGEMENT =====
         function addItem() {
             const tbody = document.getElementById('itemsTableBody');
             const newRow = document.createElement('tr');
             newRow.className = 'item-row';
-            newRow.style.animation = 'slideDown 0.3s ease-out';
             newRow.innerHTML = `
                 <td><input type="text" class="item-description" placeholder="Item description"></td>
                 <td><input type="number" class="item-price" placeholder="0.00" value="0" step="0.01" oninput="calculateAmounts()"></td>
@@ -961,285 +839,341 @@
                 <td><button type="button" class="btn-remove" onclick="removeItem(this)">Remove</button></td>
             `;
             tbody.appendChild(newRow);
-            
-            // Focus on the first input
             newRow.querySelector('.item-description').focus();
             calculateAmounts();
         }
 
         function removeItem(btn) {
             const row = btn.closest('tr');
-            row.style.animation = 'slideUp 0.3s ease-out forwards';
-            
-            setTimeout(() => {
-                row.remove();
-                calculateAmounts();
-            }, 300);
+            row.style.opacity = '0';
+            setTimeout(() => { row.remove(); calculateAmounts(); }, 300);
         }
 
-        // ===== CALCULATIONS =====
         function calculateAmounts() {
             const rows = document.querySelectorAll('.item-row');
             let subtotal = 0, totalDiscount = 0, totalTax = 0;
 
             rows.forEach(row => {
-                const price = parseFloat(row.querySelector('.item-price').value) || 0;
-                const qty = parseFloat(row.querySelector('.item-qty').value) || 0;
-                const discountPct = parseFloat(row.querySelector('.item-discount').value) || 0;
-                const taxPct = parseFloat(row.querySelector('.item-tax').value) || 0;
+                const price    = parseFloat(row.querySelector('.item-price').value) || 0;
+                const qty      = parseFloat(row.querySelector('.item-qty').value) || 0;
+                const discPct  = parseFloat(row.querySelector('.item-discount').value) || 0;
+                const taxPct   = parseFloat(row.querySelector('.item-tax').value) || 0;
 
-                const lineTotal = price * qty;
-                const discount = (lineTotal * discountPct) / 100;
-                const afterDiscount = lineTotal - discount;
-                const tax = (afterDiscount * taxPct) / 100;
-                const amount = afterDiscount + tax;
+                const lineTotal    = price * qty;
+                const discount     = (lineTotal * discPct) / 100;
+                const afterDisc    = lineTotal - discount;
+                const tax          = (afterDisc * taxPct) / 100;
+                const amount       = afterDisc + tax;
 
                 row.querySelector('.item-amount').value = amount.toFixed(2);
-                subtotal += lineTotal;
+                subtotal      += lineTotal;
                 totalDiscount += discount;
-                totalTax += tax;
+                totalTax      += tax;
             });
 
             const total = subtotal - totalDiscount + totalTax;
-
-            // Animate total change
-            animateValue('subtotal', '₹' + subtotal.toFixed(2));
-            animateValue('totalDiscount', '₹' + totalDiscount.toFixed(2));
-            animateValue('totalTax', '₹' + totalTax.toFixed(2));
-            animateValue('invoiceTotal', '₹' + total.toFixed(2));
+            document.getElementById('subtotal').textContent      = '₹' + subtotal.toFixed(2);
+            document.getElementById('totalDiscount').textContent = '₹' + totalDiscount.toFixed(2);
+            document.getElementById('totalTax').textContent      = '₹' + totalTax.toFixed(2);
+            document.getElementById('invoiceTotal').textContent  = '₹' + total.toFixed(2);
 
             updatePreview();
         }
 
-        function animateValue(elementId, newValue) {
-            const element = document.getElementById(elementId);
-            element.style.opacity = '0.7';
-            element.textContent = newValue;
-            
-            setTimeout(() => {
-                element.style.opacity = '1';
-            }, 10);
-        }
-
-        // ===== PREVIEW =====
         function updatePreview() {
-            const invoiceNo = document.getElementById('invoiceNo').value || 'INV-001';
-            const invoiceDate = document.getElementById('invoiceDate').value;
-            const dueDate = document.getElementById('dueDate').value;
-            const clientName = document.getElementById('clientName').value || 'Client Name';
-            const clientEmail = document.getElementById('clientEmail').value || '';
+            const invoiceNo     = document.getElementById('invoiceNo').value || 'INV-001';
+            const invoiceDate   = document.getElementById('invoiceDate').value || '';
+            const dueDate       = document.getElementById('dueDate').value || '';
+            const clientName    = document.getElementById('clientName').value || 'Client Name';
             const clientAddress = document.getElementById('clientAddress').value || '';
-            const clientCity = document.getElementById('clientCity').value || '';
-            const clientPhone = document.getElementById('clientPhone').value || '';
+            const clientCity    = document.getElementById('clientCity').value || '';
+            const clientPhone   = document.getElementById('clientPhone').value || '';
 
             let itemsHTML = '';
-            const rows = document.querySelectorAll('.item-row');
-            rows.forEach(row => {
-                const desc = row.querySelector('.item-description').value || 'Item';
-                const price = parseFloat(row.querySelector('.item-price').value) || 0;
-                const qty = parseFloat(row.querySelector('.item-qty').value) || 0;
-                const discount = parseFloat(row.querySelector('.item-discount').value) || 0;
-                const tax = parseFloat(row.querySelector('.item-tax').value) || 0;
-                const amount = row.querySelector('.item-amount').value;
+            document.querySelectorAll('.item-row').forEach((row, i) => {
+                const desc    = row.querySelector('.item-description').value || 'Item';
+                const price   = parseFloat(row.querySelector('.item-price').value) || 0;
+                const qty     = parseFloat(row.querySelector('.item-qty').value) || 0;
+                const disc    = parseFloat(row.querySelector('.item-discount').value) || 0;
+                const tax     = parseFloat(row.querySelector('.item-tax').value) || 0;
+                const amount  = row.querySelector('.item-amount').value;
+                const bg      = i % 2 === 0 ? '#f9f9f9' : '#ffffff';
 
                 itemsHTML += `
-                    <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
-                        <td style="padding: 10px;">${desc}</td>
-                        <td style="padding: 10px; text-align: right;">₹${price.toFixed(2)}</td>
-                        <td style="padding: 10px; text-align: right;">${qty}</td>
-                        <td style="padding: 10px; text-align: right;">${discount}%</td>
-                        <td style="padding: 10px; text-align: right;">${tax}%</td>
-                        <td style="padding: 10px; text-align: right;"><strong>₹${amount}</strong></td>
-                    </tr>
-                `;
+                    <tr style="background:${bg};">
+                        <td style="padding:10px 12px; border-bottom:1px solid #e5e7eb;">${desc}</td>
+                        <td style="padding:10px 12px; border-bottom:1px solid #e5e7eb; text-align:right;">₹${price.toFixed(2)}</td>
+                        <td style="padding:10px 12px; border-bottom:1px solid #e5e7eb; text-align:right;">${qty}</td>
+                        <td style="padding:10px 12px; border-bottom:1px solid #e5e7eb; text-align:right;">${disc}%</td>
+                        <td style="padding:10px 12px; border-bottom:1px solid #e5e7eb; text-align:right;">${tax}%</td>
+                        <td style="padding:10px 12px; border-bottom:1px solid #e5e7eb; text-align:right; font-weight:700; color:#1a1a2e;">₹${amount}</td>
+                    </tr>`;
             });
 
-            const preview = `
-                <div style="margin-bottom: 25px; padding-bottom: 20px; border-bottom: 2px solid var(--primary);">
-                    <h4 style="color: var(--primary); margin-bottom: 10px; font-size: 20px;">🏪 Jain Mobile Pachore</h4>
-                    <p style="color: rgba(255, 255, 255, 0.6); font-size: 12px;">
+            const subtotalVal  = document.getElementById('subtotal').textContent;
+            const discVal      = document.getElementById('totalDiscount').textContent;
+            const taxVal       = document.getElementById('totalTax').textContent;
+            const totalVal     = document.getElementById('invoiceTotal').textContent;
+
+            // Dark-themed screen preview
+            const screenHTML = `
+                <div style="margin-bottom:25px; padding-bottom:20px; border-bottom:2px solid #00f0ff;">
+                    <h4 style="color:#00f0ff; margin-bottom:8px; font-size:20px;">🏪 Jain Mobile Pachore</h4>
+                    <p style="color:rgba(255,255,255,0.6); font-size:12px;">
                         Boda Road, Rajgarh | Pachore, MP 465683<br>
                         📱 8109758044 | ✉️ jshreyansh36@gmail.com
                     </p>
                 </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; margin-bottom:20px;">
                     <div>
-                        <p style="color: rgba(255, 255, 255, 0.5); font-size: 11px; text-transform: uppercase; margin-bottom: 5px;">Bill To:</p>
-                        <p style="color: #ffffff; font-weight: 600;">${clientName}</p>
-                        <p style="color: rgba(255, 255, 255, 0.6); font-size: 12px;">
-                            ${clientAddress}<br>${clientCity}<br>${clientPhone ? '📱 ' + clientPhone : ''}
-                        </p>
+                        <p style="color:rgba(255,255,255,0.5); font-size:11px; text-transform:uppercase; margin-bottom:5px;">Bill To:</p>
+                        <p style="color:#fff; font-weight:600;">${clientName}</p>
+                        <p style="color:rgba(255,255,255,0.6); font-size:12px;">${clientAddress}<br>${clientCity}<br>${clientPhone ? '📱 ' + clientPhone : ''}</p>
                     </div>
-                    <div style="text-align: right;">
-                        <p style="color: rgba(255, 255, 255, 0.5); font-size: 11px;">Invoice #</p>
-                        <p style="color: var(--primary); font-size: 18px; font-weight: 700;">${invoiceNo}</p>
-                        <p style="color: rgba(255, 255, 255, 0.5); font-size: 11px; margin-top: 8px;">
-                            Issue Date: ${invoiceDate}<br>Due Date: ${dueDate}
-                        </p>
+                    <div style="text-align:right;">
+                        <p style="color:rgba(255,255,255,0.5); font-size:11px;">Invoice #</p>
+                        <p style="color:#00f0ff; font-size:18px; font-weight:700;">${invoiceNo}</p>
+                        <p style="color:rgba(255,255,255,0.5); font-size:11px; margin-top:8px;">Issue: ${invoiceDate}<br>Due: ${dueDate}</p>
                     </div>
                 </div>
-
-                <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
+                <table style="width:100%; border-collapse:collapse; margin:20px 0;">
                     <thead>
-                        <tr style="background: rgba(0, 240, 255, 0.1);">
-                            <th style="padding: 12px; text-align: left; color: var(--primary); border-bottom: 2px solid var(--primary);">Description</th>
-                            <th style="padding: 12px; text-align: right; color: var(--primary); border-bottom: 2px solid var(--primary);">Price</th>
-                            <th style="padding: 12px; text-align: right; color: var(--primary); border-bottom: 2px solid var(--primary);">Qty</th>
-                            <th style="padding: 12px; text-align: right; color: var(--primary); border-bottom: 2px solid var(--primary);">Discount</th>
-                            <th style="padding: 12px; text-align: right; color: var(--primary); border-bottom: 2px solid var(--primary);">Tax</th>
-                            <th style="padding: 12px; text-align: right; color: var(--primary); border-bottom: 2px solid var(--primary);">Amount</th>
+                        <tr style="background:rgba(0,240,255,0.1);">
+                            <th style="padding:12px; text-align:left; color:#00f0ff; border-bottom:2px solid #00f0ff;">Description</th>
+                            <th style="padding:12px; text-align:right; color:#00f0ff; border-bottom:2px solid #00f0ff;">Price</th>
+                            <th style="padding:12px; text-align:right; color:#00f0ff; border-bottom:2px solid #00f0ff;">Qty</th>
+                            <th style="padding:12px; text-align:right; color:#00f0ff; border-bottom:2px solid #00f0ff;">Disc</th>
+                            <th style="padding:12px; text-align:right; color:#00f0ff; border-bottom:2px solid #00f0ff;">Tax</th>
+                            <th style="padding:12px; text-align:right; color:#00f0ff; border-bottom:2px solid #00f0ff;">Amount</th>
                         </tr>
                     </thead>
-                    <tbody>
-                        ${itemsHTML}
-                    </tbody>
+                    <tbody>${itemsHTML.replace(/#f9f9f9/g,'rgba(255,255,255,0.03)').replace(/#ffffff/g,'transparent').replace(/border-bottom:1px solid #e5e7eb/g,'border-bottom:1px solid rgba(255,255,255,0.08)').replace(/color:#1a1a2e/g,'color:#00f0ff')}</tbody>
                 </table>
-
-                <div style="display: flex; justify-content: flex-end; margin: 30px 0;">
-                    <div style="width: 300px;">
-                        <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--glass-border); color: rgba(255, 255, 255, 0.7);">
-                            <span>Subtotal:</span>
-                            <span>${document.getElementById('subtotal').textContent}</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--glass-border); color: rgba(255, 255, 255, 0.7);">
-                            <span>Discount:</span>
-                            <span>${document.getElementById('totalDiscount').textContent}</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--glass-border); color: rgba(255, 255, 255, 0.7);">
-                            <span>Tax:</span>
-                            <span>${document.getElementById('totalTax').textContent}</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding: 15px 0; font-size: 16px; font-weight: 700; background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
-                            <span>TOTAL:</span>
-                            <span>${document.getElementById('invoiceTotal').textContent}</span>
-                        </div>
+                <div style="display:flex; justify-content:flex-end; margin:20px 0;">
+                    <div style="width:280px;">
+                        <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.08); color:rgba(255,255,255,0.7);"><span>Subtotal:</span><span>${subtotalVal}</span></div>
+                        <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.08); color:rgba(255,255,255,0.7);"><span>Discount:</span><span>${discVal}</span></div>
+                        <div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:1px solid rgba(255,255,255,0.08); color:rgba(255,255,255,0.7);"><span>Tax:</span><span>${taxVal}</span></div>
+                        <div style="display:flex; justify-content:space-between; padding:15px 0; font-size:16px; font-weight:700; color:#00f0ff;"><span>TOTAL:</span><span>${totalVal}</span></div>
                     </div>
                 </div>
-
-                <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--glass-border); color: rgba(255, 255, 255, 0.5); font-size: 11px;">
+                <div style="margin-top:20px; padding-top:15px; border-top:1px solid rgba(255,255,255,0.08); color:rgba(255,255,255,0.5); font-size:11px;">
                     <p><strong>Terms:</strong> Payment due within 30 days. Thank you for your business!</p>
-                </div>
-            `;
+                </div>`;
 
-            document.getElementById('invoicePreview').innerHTML = preview;
+            document.getElementById('invoicePreview').innerHTML = screenHTML;
         }
 
-        // ===== SAVE & EXPORT =====
+        // ===== FIXED downloadPDF: uses a separate clean WHITE div =====
+        function downloadPDF() {
+            const invoiceNo = document.getElementById('invoiceNo').value || 'Invoice';
+
+            const previewContent = document.getElementById('invoicePreview').innerHTML;
+            if (!previewContent.includes('Jain Mobile')) {
+                showAlert('⚠️ Please fill in invoice details first', 'warning');
+                return;
+            }
+
+            // Gather data fresh
+            const clientName    = document.getElementById('clientName').value || '';
+            const clientAddress = document.getElementById('clientAddress').value || '';
+            const clientCity    = document.getElementById('clientCity').value || '';
+            const clientPhone   = document.getElementById('clientPhone').value || '';
+            const invoiceDate   = document.getElementById('invoiceDate').value || '';
+            const dueDate       = document.getElementById('dueDate').value || '';
+            const subtotalVal   = document.getElementById('subtotal').textContent;
+            const discVal       = document.getElementById('totalDiscount').textContent;
+            const taxVal        = document.getElementById('totalTax').textContent;
+            const totalVal      = document.getElementById('invoiceTotal').textContent;
+
+            let itemsHTML = '';
+            document.querySelectorAll('.item-row').forEach((row, i) => {
+                const desc   = row.querySelector('.item-description').value || '-';
+                const price  = parseFloat(row.querySelector('.item-price').value) || 0;
+                const qty    = parseFloat(row.querySelector('.item-qty').value) || 0;
+                const disc   = parseFloat(row.querySelector('.item-discount').value) || 0;
+                const tax    = parseFloat(row.querySelector('.item-tax').value) || 0;
+                const amount = row.querySelector('.item-amount').value;
+                const bg     = i % 2 === 0 ? '#f4f8ff' : '#ffffff';
+                itemsHTML += `
+                    <tr style="background:${bg};">
+                        <td style="padding:10px 12px; border-bottom:1px solid #dde3ef;">${desc}</td>
+                        <td style="padding:10px 12px; border-bottom:1px solid #dde3ef; text-align:right;">₹${price.toFixed(2)}</td>
+                        <td style="padding:10px 12px; border-bottom:1px solid #dde3ef; text-align:right;">${qty}</td>
+                        <td style="padding:10px 12px; border-bottom:1px solid #dde3ef; text-align:right;">${disc}%</td>
+                        <td style="padding:10px 12px; border-bottom:1px solid #dde3ef; text-align:right;">${tax}%</td>
+                        <td style="padding:10px 12px; border-bottom:1px solid #dde3ef; text-align:right; font-weight:700; color:#1a237e;">₹${amount}</td>
+                    </tr>`;
+            });
+
+            // Clean white PDF HTML — NO CSS variables, NO dark colors, NO gradients
+            const pdfHTML = `
+                <div style="font-family:Arial,sans-serif; color:#111; background:#fff; padding:0; width:100%;">
+                    <!-- Header -->
+                    <div style="background:#1a237e; color:#fff; padding:30px; border-radius:8px 8px 0 0; margin-bottom:0;">
+                        <div style="display:flex; justify-content:space-between; align-items:flex-start;">
+                            <div>
+                                <div style="font-size:26px; font-weight:700; letter-spacing:2px; margin-bottom:4px;">🏪 JAIN MOBILE</div>
+                                <div style="font-size:12px; opacity:0.85;">Boda Road, Rajgarh | Pachore, MP 465683</div>
+                                <div style="font-size:12px; opacity:0.85;">📱 8109758044 &nbsp;|&nbsp; ✉️ jshreyansh36@gmail.com</div>
+                            </div>
+                            <div style="text-align:right;">
+                                <div style="font-size:22px; font-weight:700; color:#7ec8ff;">INVOICE</div>
+                                <div style="font-size:16px; font-weight:600; color:#ffffff; margin-top:4px;">${invoiceNo}</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Bill To + Dates -->
+                    <div style="display:flex; justify-content:space-between; background:#f0f4ff; padding:20px 30px; border:1px solid #dde3ef; border-top:none;">
+                        <div>
+                            <div style="font-size:10px; color:#5c6bc0; text-transform:uppercase; letter-spacing:1px; margin-bottom:6px;">Bill To</div>
+                            <div style="font-size:15px; font-weight:700; color:#1a237e;">${clientName || '—'}</div>
+                            <div style="font-size:12px; color:#444; margin-top:4px;">${clientAddress}</div>
+                            <div style="font-size:12px; color:#444;">${clientCity}</div>
+                            ${clientPhone ? `<div style="font-size:12px; color:#444;">📱 ${clientPhone}</div>` : ''}
+                        </div>
+                        <div style="text-align:right;">
+                            <div style="font-size:11px; color:#777; margin-bottom:4px;">Issue Date: <strong style="color:#1a237e;">${invoiceDate}</strong></div>
+                            <div style="font-size:11px; color:#777;">Due Date: <strong style="color:#c62828;">${dueDate}</strong></div>
+                        </div>
+                    </div>
+
+                    <!-- Items Table -->
+                    <table style="width:100%; border-collapse:collapse; margin-top:0; border:1px solid #dde3ef; border-top:none;">
+                        <thead>
+                            <tr style="background:#3949ab; color:#fff;">
+                                <th style="padding:12px; text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:1px;">Description</th>
+                                <th style="padding:12px; text-align:right; font-size:11px; text-transform:uppercase; letter-spacing:1px;">Unit Price</th>
+                                <th style="padding:12px; text-align:right; font-size:11px; text-transform:uppercase; letter-spacing:1px;">Qty</th>
+                                <th style="padding:12px; text-align:right; font-size:11px; text-transform:uppercase; letter-spacing:1px;">Disc%</th>
+                                <th style="padding:12px; text-align:right; font-size:11px; text-transform:uppercase; letter-spacing:1px;">Tax%</th>
+                                <th style="padding:12px; text-align:right; font-size:11px; text-transform:uppercase; letter-spacing:1px;">Amount</th>
+                            </tr>
+                        </thead>
+                        <tbody>${itemsHTML}</tbody>
+                    </table>
+
+                    <!-- Summary -->
+                    <div style="display:flex; justify-content:flex-end; padding:20px 30px; border:1px solid #dde3ef; border-top:none; background:#fff;">
+                        <div style="width:260px;">
+                            <div style="display:flex; justify-content:space-between; padding:7px 0; border-bottom:1px solid #eee; font-size:13px; color:#555;">
+                                <span>Subtotal</span><span>${subtotalVal}</span>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; padding:7px 0; border-bottom:1px solid #eee; font-size:13px; color:#555;">
+                                <span>Discount</span><span style="color:#c62828;">${discVal}</span>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; padding:7px 0; border-bottom:1px solid #eee; font-size:13px; color:#555;">
+                                <span>Tax</span><span>${taxVal}</span>
+                            </div>
+                            <div style="display:flex; justify-content:space-between; padding:12px 0; font-size:17px; font-weight:700; color:#1a237e; background:#e8eaf6; padding:12px 10px; border-radius:6px; margin-top:6px;">
+                                <span>TOTAL</span><span>${totalVal}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Footer -->
+                    <div style="padding:15px 30px; background:#f0f4ff; border:1px solid #dde3ef; border-top:none; border-radius:0 0 8px 8px; font-size:11px; color:#666;">
+                        <strong>Terms & Conditions:</strong> Payment due within 30 days. Thank you for choosing Jain Mobile! 🙏
+                    </div>
+                </div>`;
+
+            // Inject into hidden white div
+            const pdfArea = document.getElementById('pdfPrintArea');
+            pdfArea.innerHTML = pdfHTML;
+
+            const opt = {
+                margin:      10,
+                filename:    `${invoiceNo}.pdf`,
+                image:       { type: 'jpeg', quality: 0.98 },
+                html2canvas: {
+                    scale:           2,
+                    useCORS:         true,
+                    backgroundColor: '#ffffff',   // ← KEY FIX
+                    logging:         false
+                },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+
+            showAlert('⏳ Generating PDF...', 'success');
+
+            // Small delay so DOM renders before capture
+            setTimeout(() => {
+                html2pdf().set(opt).from(pdfArea).save().then(() => {
+                    showAlert('✅ PDF downloaded successfully!', 'success');
+                    pdfArea.innerHTML = ''; // cleanup
+                });
+            }, 300);
+        }
+
+        function printInvoice() {
+            if (!document.getElementById('invoicePreview').innerHTML.includes('Jain Mobile')) {
+                showAlert('⚠️ Please fill in invoice details first', 'warning');
+                return;
+            }
+            window.print();
+        }
+
         function saveInvoice() {
             const invoiceNo = document.getElementById('invoiceNo').value;
             if (!invoiceNo || invoiceNo === 'INV-') {
                 showAlert('❌ Please enter an invoice number', 'error');
                 return;
             }
-
             const rows = document.querySelectorAll('.item-row');
-            if (rows.length === 0 || !rows[0].querySelector('.item-description').value) {
+            if (!rows[0] || !rows[0].querySelector('.item-description').value) {
                 showAlert('❌ Please add at least one item', 'error');
                 return;
             }
-
             const invoice = {
                 id: Date.now(),
-                invoiceNo: invoiceNo,
+                invoiceNo,
                 total: document.getElementById('invoiceTotal').textContent,
                 date: new Date().toLocaleDateString()
             };
-
             allInvoices.push(invoice);
             localStorage.setItem('jmInvoices', JSON.stringify(allInvoices));
-
             showAlert('✓ Invoice saved successfully!', 'success');
         }
 
-        function downloadPDF() {
-            const invoiceNo = document.getElementById('invoiceNo').value || 'Invoice';
-            const element = document.getElementById('invoicePreview');
-            
-            if (!element.innerHTML.includes('Jain Mobile')) {
-                showAlert('⚠️ Please fill in invoice details first', 'warning');
-                return;
-            }
-
-            const opt = {
-                margin: 10,
-                filename: `${invoiceNo}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
-                jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
-            };
-
-            html2pdf().set(opt).from(element).save();
-            showAlert('✓ PDF downloaded successfully!', 'success');
-        }
-
-        function printInvoice() {
-            const element = document.getElementById('invoicePreview');
-            
-            if (!element.innerHTML.includes('Jain Mobile')) {
-                showAlert('⚠️ Please fill in invoice details first', 'warning');
-                return;
-            }
-
-            window.print();
-        }
-
         function clearForm() {
-            if (confirm('Are you sure you want to clear the form?')) {
-                document.getElementById('invoiceNo').value = 'INV-';
-                document.getElementById('invoiceDate').valueAsDate = new Date();
-                document.getElementById('dueDate').value = '';
-                document.getElementById('clientName').value = '';
-                document.getElementById('clientEmail').value = '';
-                document.getElementById('clientAddress').value = '';
-                document.getElementById('clientCity').value = '';
-                document.getElementById('clientPhone').value = '';
+            if (!confirm('Are you sure you want to clear the form?')) return;
+            document.getElementById('invoiceNo').value = 'INV-';
+            document.getElementById('invoiceDate').valueAsDate = new Date();
+            document.getElementById('dueDate').value = '';
+            document.getElementById('clientName').value = '';
+            document.getElementById('clientEmail').value = '';
+            document.getElementById('clientAddress').value = '';
+            document.getElementById('clientCity').value = '';
+            document.getElementById('clientPhone').value = '';
 
-                const tbody = document.getElementById('itemsTableBody');
-                tbody.innerHTML = `
-                    <tr class="item-row">
-                        <td><input type="text" class="item-description" placeholder="Item description"></td>
-                        <td><input type="number" class="item-price" placeholder="0.00" value="0" step="0.01" oninput="calculateAmounts()"></td>
-                        <td><input type="number" class="item-qty" placeholder="1" value="1" min="1" oninput="calculateAmounts()"></td>
-                        <td><input type="number" class="item-discount" placeholder="0" value="0" min="0" max="100" oninput="calculateAmounts()"></td>
-                        <td><input type="number" class="item-tax" placeholder="0" value="0" min="0" max="100" oninput="calculateAmounts()"></td>
-                        <td><input type="text" class="item-amount" value="0.00" readonly></td>
-                        <td><button type="button" class="btn-remove" onclick="removeItem(this)">Remove</button></td>
-                    </tr>
-                `;
-
-                calculateAmounts();
-                showAlert('✓ Form cleared!', 'success');
-            }
+            document.getElementById('itemsTableBody').innerHTML = `
+                <tr class="item-row">
+                    <td><input type="text" class="item-description" placeholder="Item description"></td>
+                    <td><input type="number" class="item-price" placeholder="0.00" value="0" step="0.01" oninput="calculateAmounts()"></td>
+                    <td><input type="number" class="item-qty" placeholder="1" value="1" min="1" oninput="calculateAmounts()"></td>
+                    <td><input type="number" class="item-discount" placeholder="0" value="0" min="0" max="100" oninput="calculateAmounts()"></td>
+                    <td><input type="number" class="item-tax" placeholder="0" value="0" min="0" max="100" oninput="calculateAmounts()"></td>
+                    <td><input type="text" class="item-amount" value="0.00" readonly></td>
+                    <td><button type="button" class="btn-remove" onclick="removeItem(this)">Remove</button></td>
+                </tr>`;
+            calculateAmounts();
+            showAlert('✓ Form cleared!', 'success');
         }
 
-        // ===== ALERT FUNCTION =====
         function showAlert(message, type = 'success') {
             const msg = document.getElementById('successMsg');
             msg.textContent = message;
-            msg.style.background = type === 'error' ? 'rgba(255, 0, 0, 0.1)' : 
-                                    type === 'warning' ? 'rgba(255, 165, 0, 0.1)' : 'rgba(0, 240, 255, 0.1)';
-            msg.style.borderColor = type === 'error' ? 'rgba(255, 0, 0, 0.5)' : 
-                                    type === 'warning' ? 'rgba(255, 165, 0, 0.5)' : 'var(--primary)';
-            msg.style.color = type === 'error' ? 'rgba(255, 0, 0, 0.8)' : 
-                             type === 'warning' ? 'rgba(255, 165, 0, 0.8)' : 'var(--primary)';
+            msg.style.background     = type === 'error' ? 'rgba(255,0,0,0.1)' : type === 'warning' ? 'rgba(255,165,0,0.1)' : 'rgba(0,240,255,0.1)';
+            msg.style.borderColor    = type === 'error' ? 'rgba(255,0,0,0.5)' : type === 'warning' ? 'rgba(255,165,0,0.5)' : 'var(--primary)';
+            msg.style.color          = type === 'error' ? 'rgba(255,50,50,0.9)' : type === 'warning' ? 'rgba(255,165,0,0.9)' : 'var(--primary)';
             msg.classList.add('show');
-            
             setTimeout(() => msg.classList.remove('show'), 3500);
         }
 
-        // ===== KEYBOARD SHORTCUTS =====
         document.addEventListener('keydown', (e) => {
-            // Ctrl+S to save
-            if (e.ctrlKey && e.key === 's') {
-                e.preventDefault();
-                saveInvoice();
-            }
-            // Ctrl+P to print
-            if (e.ctrlKey && e.key === 'p') {
-                e.preventDefault();
-                printInvoice();
-            }
+            if (e.ctrlKey && e.key === 's') { e.preventDefault(); saveInvoice(); }
+            if (e.ctrlKey && e.key === 'p') { e.preventDefault(); printInvoice(); }
         });
     </script>
 </body>
