@@ -1,1076 +1,812 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jain Mobile - Modern Invoice Maker</title>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Syne:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
-    <style>
-        @charset "utf-8";
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --primary: #00f0ff;
-            --secondary: #ff00d4;
-            --accent: #9d4edd;
-            --dark-1: #0a0a12;
-            --dark-2: #12121f;
-            --dark-3: #1a1a2e;
-            --glass-bg: rgba(255, 255, 255, 0.03);
-            --glass-border: rgba(255, 255, 255, 0.08);
-            --glow-cyan: rgba(0, 240, 255, 0.4);
-            --glow-magenta: rgba(255, 0, 212, 0.4);
-        }
-
-        body {
-            font-family: 'Outfit', sans-serif;
-            background: var(--dark-1);
-            color: #ffffff;
-            overflow-x: hidden;
-            min-height: 100vh;
-        }
-
-        /* Ambient Background */
-        .ambient-bg {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 0;
-            overflow: hidden;
-        }
-
-        .orb {
-            position: absolute;
-            border-radius: 50%;
-            filter: blur(80px);
-            animation: float 20s ease-in-out infinite;
-        }
-
-        .orb-1 {
-            width: 600px;
-            height: 600px;
-            background: radial-gradient(circle, var(--glow-cyan) 0%, transparent 70%);
-            top: -200px;
-            left: -200px;
-            animation-delay: 0s;
-        }
-
-        .orb-2 {
-            width: 500px;
-            height: 500px;
-            background: radial-gradient(circle, var(--glow-magenta) 0%, transparent 70%);
-            bottom: -150px;
-            right: -150px;
-            animation-delay: -7s;
-        }
-
-        @keyframes float {
-            0%, 100% { transform: translate(0, 0) scale(1); }
-            25% { transform: translate(50px, -30px) scale(1.05); }
-            50% { transform: translate(-30px, 50px) scale(0.95); }
-            75% { transform: translate(-50px, -20px) scale(1.02); }
-        }
-
-        .grid-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-image:
-                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
-            background-size: 80px 80px;
-            pointer-events: none;
-            z-index: 1;
-        }
-
-        /* Main Container */
-        .container {
-            position: relative;
-            z-index: 10;
-            padding: 40px 20px;
-            max-width: 1200px;
-            margin: 0 auto;
-            min-height: 100vh;
-        }
-
-        /* Header */
-        .header {
-            text-align: center;
-            margin-bottom: 60px;
-            opacity: 0;
-            animation: fadeUp 0.8s ease-out 0.5s forwards;
-        }
-
-        @keyframes fadeUp {
-            from { opacity: 0; transform: translateY(30px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .logo {
-            width: 80px;
-            height: 80px;
-            margin: 0 auto 20px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 40px;
-            filter: drop-shadow(0 0 20px var(--glow-cyan));
-        }
-
-        .brand-name {
-            font-family: 'Syne', sans-serif;
-            font-size: 48px;
-            font-weight: 700;
-            letter-spacing: 4px;
-            margin-bottom: 10px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-transform: uppercase;
-        }
-
-        .tagline {
-            font-size: 12px;
-            letter-spacing: 3px;
-            color: rgba(255, 255, 255, 0.5);
-            text-transform: uppercase;
-        }
-
-        /* Menu Grid */
-        .menu-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin: 0 auto 60px;
-            max-width: 800px;
-        }
-
-        .menu-item {
-            height: 160px;
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: 20px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            position: relative;
-            overflow: hidden;
-            opacity: 0;
-            transform: translateY(30px) scale(0.9);
-            animation: menuAppear 0.5s ease-out forwards;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-        }
-
-        .menu-item:nth-child(1) { animation-delay: 0.6s; }
-        .menu-item:nth-child(2) { animation-delay: 0.7s; }
-        .menu-item:nth-child(3) { animation-delay: 0.8s; }
-
-        @keyframes menuAppear {
-            to { opacity: 1; transform: translateY(0) scale(1); }
-        }
-
-        .menu-item::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 50%;
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, transparent 100%);
-            border-radius: 20px 20px 0 0;
-            pointer-events: none;
-        }
-
-        .menu-item:hover {
-            transform: translateY(-8px) scale(1.02);
-            background: rgba(0, 240, 255, 0.08);
-            border-color: var(--primary);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 30px rgba(0, 200, 220, 0.15);
-        }
-
-        .menu-badge {
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 28px;
-            margin-bottom: 12px;
-            background: linear-gradient(135deg, rgba(0, 240, 255, 0.2), rgba(255, 0, 212, 0.15));
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            color: var(--primary);
-            text-shadow: 0 0 15px var(--glow-cyan);
-            position: relative;
-        }
-
-        .menu-badge::before {
-            content: '';
-            position: absolute;
-            top: 2px;
-            left: 10%;
-            right: 10%;
-            height: 40%;
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.25) 0%, transparent 100%);
-            border-radius: 50%;
-            pointer-events: none;
-        }
-
-        .menu-item:hover .menu-badge {
-            transform: scale(1.1);
-            box-shadow: 0 0 20px var(--glow-cyan);
-        }
-
-        .menu-title {
-            font-size: 11px;
-            font-weight: 500;
-            letter-spacing: 2px;
-            text-transform: uppercase;
-            color: rgba(255, 255, 255, 0.6);
-            transition: all 0.3s ease;
-        }
-
-        .menu-item:hover .menu-title {
-            color: var(--primary);
-            letter-spacing: 3px;
-        }
-
-        /* Content Sections */
-        .content-section {
-            display: none;
-            opacity: 0;
-            position: relative;
-            animation: sectionIn 0.6s ease-out forwards;
-        }
-
-        .content-section.active {
-            display: block;
-        }
-
-        @keyframes sectionIn {
-            from { opacity: 0; transform: translateY(40px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Back Button */
-        .back-btn {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 12px 24px;
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: 50px;
-            color: rgba(255, 255, 255, 0.7);
-            font-family: 'Outfit', sans-serif;
-            font-size: 12px;
-            letter-spacing: 2px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            z-index: 100;
-        }
-
-        .back-btn:hover {
-            background: rgba(0, 240, 255, 0.1);
-            border-color: var(--primary);
-            color: var(--primary);
-            box-shadow: 0 0 20px var(--glow-cyan);
-        }
-
-        /* Section Header */
-        .section-header {
-            text-align: center;
-            margin-bottom: 40px;
-        }
-
-        .section-title {
-            font-family: 'Syne', sans-serif;
-            font-size: 42px;
-            font-weight: 700;
-            margin-bottom: 10px;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        .section-subtitle {
-            font-size: 13px;
-            color: rgba(255, 255, 255, 0.5);
-            letter-spacing: 2px;
-        }
-
-        /* Glass Cards */
-        .glass-card {
-            background: var(--glass-bg);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--glass-border);
-            border-radius: 16px;
-            padding: 30px;
-            position: relative;
-            overflow: hidden;
-            transition: all 0.4s ease;
-        }
-
-        .glass-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
-        }
-
-        .glass-card:hover {
-            background: rgba(255, 255, 255, 0.05);
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
-            border-color: rgba(0, 240, 255, 0.2);
-        }
-
-        /* Form Styles */
-        .form-section {
-            margin-bottom: 30px;
-        }
-
-        .form-section h3 {
-            font-family: 'Syne', sans-serif;
-            font-size: 18px;
-            font-weight: 600;
-            margin-bottom: 20px;
-            color: var(--primary);
-            letter-spacing: 1px;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 15px;
-            margin-bottom: 15px;
-        }
-
-        .form-group {
-            display: flex;
-            flex-direction: column;
-        }
-
-        label {
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: rgba(255, 255, 255, 0.7);
-            font-size: 12px;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-
-        input, select, textarea {
-            padding: 12px 16px;
-            background: rgba(255, 255, 255, 0.02);
-            backdrop-filter: blur(10px);
-            border: 1px solid var(--glass-border);
-            border-radius: 10px;
-            color: #ffffff;
-            font-family: 'Outfit', sans-serif;
-            font-size: 14px;
-            transition: all 0.3s ease;
-        }
-
-        input::placeholder, textarea::placeholder {
-            color: rgba(255, 255, 255, 0.3);
-        }
-
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: var(--primary);
-            background: rgba(0, 240, 255, 0.05);
-            box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
-        }
-
-        textarea {
-            resize: vertical;
-            min-height: 100px;
-        }
-
-        /* Items Table */
-        .items-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin: 20px 0;
-        }
-
-        .items-table thead {
-            background: rgba(0, 240, 255, 0.05);
-        }
-
-        .items-table th {
-            padding: 12px;
-            text-align: left;
-            font-weight: 600;
-            color: var(--primary);
-            border: 1px solid var(--glass-border);
-            font-size: 11px;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-        }
-
-        .items-table td {
-            padding: 12px;
-            border: 1px solid var(--glass-border);
-        }
-
-        .items-table input {
-            width: 100%;
-            background: rgba(255, 255, 255, 0.02);
-        }
-
-        .btn-remove {
-            background: rgba(255, 0, 0, 0.2);
-            color: var(--secondary);
-            padding: 8px 12px;
-            border: 1px solid rgba(255, 0, 212, 0.3);
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            font-size: 10px;
-            letter-spacing: 1px;
-            transition: all 0.3s ease;
-        }
-
-        .btn-remove:hover {
-            background: rgba(255, 0, 0, 0.3);
-            border-color: var(--secondary);
-            box-shadow: 0 0 15px rgba(255, 0, 212, 0.2);
-        }
-
-        .btn-add-item {
-            background: rgba(0, 240, 255, 0.1);
-            color: var(--primary);
-            padding: 10px 20px;
-            border: 1px solid var(--primary);
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            letter-spacing: 1px;
-            margin-top: 15px;
-            transition: all 0.3s ease;
-        }
-
-        .btn-add-item:hover {
-            background: rgba(0, 240, 255, 0.2);
-            box-shadow: 0 0 20px rgba(0, 240, 255, 0.25);
-        }
-
-        /* Summary */
-        .summary-box {
-            background: rgba(0, 240, 255, 0.03);
-            border: 1px solid var(--glass-border);
-            padding: 20px;
-            border-radius: 12px;
-            margin: 20px 0;
-        }
-
-        .summary-row {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 12px;
-            font-weight: 500;
-            color: rgba(255, 255, 255, 0.7);
-        }
-
-        .summary-row.total {
-            border-top: 1px solid var(--glass-border);
-            padding-top: 12px;
-            font-size: 18px;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-        }
-
-        /* Action Buttons */
-        .action-buttons {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin: 30px 0;
-        }
-
-        .btn-action {
-            padding: 12px 24px;
-            border: 1px solid var(--glass-border);
-            border-radius: 10px;
-            font-weight: 600;
-            cursor: pointer;
-            font-size: 12px;
-            letter-spacing: 1px;
-            transition: all 0.3s ease;
-            flex: 1;
-            min-width: 150px;
-            text-transform: uppercase;
-        }
-
-        .btn-download {
-            background: rgba(0, 240, 255, 0.15);
-            color: var(--primary);
-            border-color: var(--primary);
-        }
-
-        .btn-download:hover {
-            background: rgba(0, 240, 255, 0.25);
-            box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
-            transform: translateY(-2px);
-        }
-
-        .btn-print {
-            background: rgba(157, 78, 221, 0.15);
-            color: var(--accent);
-            border-color: var(--accent);
-        }
-
-        .btn-print:hover {
-            background: rgba(157, 78, 221, 0.25);
-            box-shadow: 0 0 20px rgba(157, 78, 221, 0.3);
-            transform: translateY(-2px);
-        }
-
-        .btn-save {
-            background: rgba(255, 0, 212, 0.15);
-            color: var(--secondary);
-            border-color: var(--secondary);
-        }
-
-        .btn-save:hover {
-            background: rgba(255, 0, 212, 0.25);
-            box-shadow: 0 0 20px rgba(255, 0, 212, 0.3);
-            transform: translateY(-2px);
-        }
-
-        .btn-clear {
-            background: transparent;
-            color: rgba(255, 255, 255, 0.5);
-            border-color: var(--glass-border);
-        }
-
-        .btn-clear:hover {
-            color: rgba(255, 255, 255, 0.8);
-            border-color: rgba(255, 255, 255, 0.3);
-        }
-
-        /* Preview */
-        .preview-box {
-            background: var(--glass-bg);
-            border: 1px solid var(--glass-border);
-            border-radius: 16px;
-            padding: 30px;
-            margin-top: 30px;
-            backdrop-filter: blur(20px);
-        }
-
-        .invoice-preview {
-            font-size: 13px;
-            line-height: 1.8;
-        }
-
-        .invoice-preview h4 {
-            color: var(--primary);
-            font-size: 16px;
-            margin-bottom: 15px;
-            margin-top: 20px;
-        }
-
-        .success-msg {
-            background: rgba(0, 240, 255, 0.1);
-            color: var(--primary);
-            padding: 15px 20px;
-            border: 1px solid var(--primary);
-            border-radius: 10px;
-            margin-bottom: 20px;
-            display: none;
-            font-weight: 600;
-            letter-spacing: 1px;
-        }
-
-        .success-msg.show {
-            display: block;
-            animation: slideDown 0.5s ease-out;
-        }
-
-        @keyframes slideDown {
-            from { opacity: 0; transform: translateY(-20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* Responsive */
-        @media (max-width: 768px) {
-            .menu-grid {
-                grid-template-columns: repeat(2, 1fr);
-                max-width: 100%;
-            }
-
-            .section-title {
-                font-size: 32px;
-            }
-
-            .action-buttons {
-                flex-direction: column;
-            }
-
-            .btn-action {
-                width: 100%;
-            }
-
-            .back-btn {
-                position: relative;
-                top: auto;
-                right: auto;
-                margin-bottom: 20px;
-                width: fit-content;
-            }
-        }
-
-        @media print {
-            .menu-grid, .back-btn, .action-buttons, .form-section {
-                display: none;
-            }
-
-            .preview-box {
-                border: none;
-                background: transparent;
-                padding: 0;
-            }
-        }
-    </style>
-</head>
-<body>
-    <!-- Background Effects -->
-    <div class="ambient-bg">
-        <div class="orb orb-1"></div>
-        <div class="orb orb-2"></div>
-    </div>
-    <div class="grid-overlay"></div>
-
-    <!-- Main Container -->
-    <div class="container">
-        <!-- Home Screen -->
-        <div class="content-section active" id="homeSection">
-            <div class="header">
-                <div class="logo">💳</div>
-                <h1 class="brand-name">Jain Mobile</h1>
-                <p class="tagline">Invoice Maker</p>
-            </div>
-
-            <div class="menu-grid">
-                <div class="menu-item" onclick="showSection('invoiceSection')">
-                    <div class="menu-badge">📝</div>
-                    <p class="menu-title">Create Invoice</p>
-                </div>
-                <div class="menu-item" onclick="alert('Feature coming soon')">
-                    <div class="menu-badge">📊</div>
-                    <p class="menu-title">History</p>
-                </div>
-                <div class="menu-item" onclick="alert('Contact: 8109758044')">
-                    <div class="menu-badge">📞</div>
-                    <p class="menu-title">Contact</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- Invoice Maker Section -->
-        <div class="content-section" id="invoiceSection">
-            <button class="back-btn" onclick="showSection('homeSection')">← BACK</button>
-
-            <div class="section-header">
-                <h2 class="section-title">Create Invoice</h2>
-                <p class="section-subtitle">Generate professional invoices in seconds</p>
-            </div>
-
-            <div class="glass-card">
-                <div class="success-msg" id="successMsg">✓ Invoice saved successfully!</div>
-
-                <!-- Invoice Details -->
-                <div class="form-section">
-                    <h3>Invoice Details</h3>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Invoice Number</label>
-                            <input type="text" id="invoiceNo" placeholder="INV-001" value="INV-">
-                        </div>
-                        <div class="form-group">
-                            <label>Invoice Date</label>
-                            <input type="date" id="invoiceDate">
-                        </div>
-                        <div class="form-group">
-                            <label>Due Date</label>
-                            <input type="date" id="dueDate">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Client Details -->
-                <div class="form-section">
-                    <h3>Bill To (Client)</h3>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Client Name</label>
-                            <input type="text" id="clientName" placeholder="Enter client name">
-                        </div>
-                        <div class="form-group">
-                            <label>Client Email</label>
-                            <input type="email" id="clientEmail" placeholder="client@email.com">
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Address</label>
-                            <input type="text" id="clientAddress" placeholder="Street address">
-                        </div>
-                        <div class="form-group">
-                            <label>City</label>
-                            <input type="text" id="clientCity" placeholder="City">
-                        </div>
-                        <div class="form-group">
-                            <label>Phone</label>
-                            <input type="tel" id="clientPhone" placeholder="Phone number">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Items -->
-                <div class="form-section">
-                    <h3>Items / Services</h3>
-                    <table class="items-table">
-                        <thead>
-                            <tr>
-                                <th>Description</th>
-                                <th style="width: 100px;">Unit Price</th>
-                                <th style="width: 70px;">Qty</th>
-                                <th style="width: 100px;">Discount %</th>
-                                <th style="width: 70px;">Tax %</th>
-                                <th style="width: 100px;">Amount</th>
-                                <th style="width: 70px;">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody id="itemsTableBody">
-                            <tr class="item-row">
-                                <td><input type="text" class="item-description" placeholder="Item description"></td>
-                                <td><input type="number" class="item-price" placeholder="0.00" value="0" step="0.01" oninput="calculateAmounts()"></td>
-                                <td><input type="number" class="item-qty" placeholder="1" value="1" min="1" oninput="calculateAmounts()"></td>
-                                <td><input type="number" class="item-discount" placeholder="0" value="0" min="0" max="100" oninput="calculateAmounts()"></td>
-                                <td><input type="number" class="item-tax" placeholder="0" value="0" min="0" max="100" oninput="calculateAmounts()"></td>
-                                <td><input type="text" class="item-amount" value="0.00" readonly></td>
-                                <td><button type="button" class="btn-remove" onclick="removeItem(this)">Remove</button></td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <button type="button" class="btn-add-item" onclick="addItem()">+ Add Item</button>
-                </div>
-
-                <!-- Summary -->
-                <div class="summary-box">
-                    <div class="summary-row">
-                        <span>Subtotal:</span>
-                        <span id="subtotal">₹0.00</span>
-                    </div>
-                    <div class="summary-row">
-                        <span>Total Discount:</span>
-                        <span id="totalDiscount">₹0.00</span>
-                    </div>
-                    <div class="summary-row">
-                        <span>Total Tax:</span>
-                        <span id="totalTax">₹0.00</span>
-                    </div>
-                    <div class="summary-row total">
-                        <span>Invoice Total:</span>
-                        <span id="invoiceTotal">₹0.00</span>
-                    </div>
-                </div>
-
-                <!-- Action Buttons -->
-                <div class="action-buttons">
-                    <button class="btn-action btn-download" onclick="downloadPDF()">📥 Download PDF</button>
-                    <button class="btn-action btn-print" onclick="printInvoice()">🖨️ Print</button>
-                    <button class="btn-action btn-save" onclick="saveInvoice()">💾 Save</button>
-                    <button class="btn-action btn-clear" onclick="clearForm()">🔄 Clear</button>
-                </div>
-
-                <!-- Preview -->
-                <div class="preview-box">
-                    <h3 style="color: var(--primary); margin-bottom: 20px;">📋 Invoice Preview</h3>
-                    <div id="invoicePreview" class="invoice-preview">
-                        <p style="text-align: center; color: rgba(255, 255, 255, 0.5);">Fill in the form above to see your invoice preview</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        // Initialize
-        document.getElementById('invoiceDate').valueAsDate = new Date();
-        let allInvoices = JSON.parse(localStorage.getItem('jmInvoices')) || [];
-
-        // Navigation
-        function showSection(sectionId) {
-            document.querySelectorAll('.content-section').forEach(section => {
-                section.classList.remove('active');
-            });
-            document.getElementById(sectionId).classList.add('active');
-            window.scrollTo(0, 0);
-        }
-
-        // Item functions
-        function addItem() {
-            const tbody = document.getElementById('itemsTableBody');
-            const newRow = document.createElement('tr');
-            newRow.className = 'item-row';
-            newRow.innerHTML = `
-                <td><input type="text" class="item-description" placeholder="Item description"></td>
-                <td><input type="number" class="item-price" placeholder="0.00" value="0" step="0.01" oninput="calculateAmounts()"></td>
-                <td><input type="number" class="item-qty" placeholder="1" value="1" min="1" oninput="calculateAmounts()"></td>
-                <td><input type="number" class="item-discount" placeholder="0" value="0" min="0" max="100" oninput="calculateAmounts()"></td>
-                <td><input type="number" class="item-tax" placeholder="0" value="0" min="0" max="100" oninput="calculateAmounts()"></td>
-                <td><input type="text" class="item-amount" value="0.00" readonly></td>
-                <td><button type="button" class="btn-remove" onclick="removeItem(this)">Remove</button></td>
-            `;
-            tbody.appendChild(newRow);
-        }
-
-        function removeItem(btn) {
-            btn.closest('tr').remove();
-            calculateAmounts();
-        }
-
-        function calculateAmounts() {
-            const rows = document.querySelectorAll('.item-row');
-            let subtotal = 0, totalDiscount = 0, totalTax = 0;
-
-            rows.forEach(row => {
-                const price = parseFloat(row.querySelector('.item-price').value) || 0;
-                const qty = parseFloat(row.querySelector('.item-qty').value) || 0;
-                const discountPct = parseFloat(row.querySelector('.item-discount').value) || 0;
-                const taxPct = parseFloat(row.querySelector('.item-tax').value) || 0;
-
-                const lineTotal = price * qty;
-                const discount = (lineTotal * discountPct) / 100;
-                const afterDiscount = lineTotal - discount;
-                const tax = (afterDiscount * taxPct) / 100;
-                const amount = afterDiscount + tax;
-
-                row.querySelector('.item-amount').value = amount.toFixed(2);
-                subtotal += lineTotal;
-                totalDiscount += discount;
-                totalTax += tax;
-            });
-
-            const total = subtotal - totalDiscount + totalTax;
-
-            document.getElementById('subtotal').textContent = '₹' + subtotal.toFixed(2);
-            document.getElementById('totalDiscount').textContent = '₹' + totalDiscount.toFixed(2);
-            document.getElementById('totalTax').textContent = '₹' + totalTax.toFixed(2);
-            document.getElementById('invoiceTotal').textContent = '₹' + total.toFixed(2);
-            updatePreview();
-        }
-
-        function updatePreview() {
-            const invoiceNo = document.getElementById('invoiceNo').value || 'INV-001';
-            const invoiceDate = document.getElementById('invoiceDate').value;
-            const dueDate = document.getElementById('dueDate').value;
-            const clientName = document.getElementById('clientName').value || 'Client Name';
-            const clientEmail = document.getElementById('clientEmail').value || '';
-            const clientAddress = document.getElementById('clientAddress').value || '';
-            const clientCity = document.getElementById('clientCity').value || '';
-            const clientPhone = document.getElementById('clientPhone').value || '';
-
-            let itemsHTML = '';
-            const rows = document.querySelectorAll('.item-row');
-            rows.forEach(row => {
-                const desc = row.querySelector('.item-description').value || 'Item';
-                const price = parseFloat(row.querySelector('.item-price').value) || 0;
-                const qty = parseFloat(row.querySelector('.item-qty').value) || 0;
-                const discount = parseFloat(row.querySelector('.item-discount').value) || 0;
-                const tax = parseFloat(row.querySelector('.item-tax').value) || 0;
-                const amount = row.querySelector('.item-amount').value;
-
-                itemsHTML += `
-                    <tr style="border-bottom: 1px solid rgba(255, 255, 255, 0.1);">
-                        <td style="padding: 10px;">${desc}</td>
-                        <td style="padding: 10px; text-align: right;">₹${price.toFixed(2)}</td>
-                        <td style="padding: 10px; text-align: right;">${qty}</td>
-                        <td style="padding: 10px; text-align: right;">${discount}%</td>
-                        <td style="padding: 10px; text-align: right;">${tax}%</td>
-                        <td style="padding: 10px; text-align: right;"><strong>₹${amount}</strong></td>
-                    </tr>
-                `;
-            });
-
-            const preview = `
-                <div style="margin-bottom: 25px; padding-bottom: 20px; border-bottom: 2px solid var(--primary);">
-                    <h4 style="color: var(--primary); margin-bottom: 10px; font-size: 20px;">🏪 Jain Mobile Pachore</h4>
-                    <p style="color: rgba(255, 255, 255, 0.6); font-size: 12px;">
-                        Boda Road, Rajgarh | Pachore, MP 465683<br>
-                        📱 8109758044 | ✉️ jshreyansh36@gmail.com
-                    </p>
-                </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-                    <div>
-                        <p style="color: rgba(255, 255, 255, 0.5); font-size: 11px; text-transform: uppercase; margin-bottom: 5px;">Bill To:</p>
-                        <p style="color: #ffffff; font-weight: 600;">${clientName}</p>
-                        <p style="color: rgba(255, 255, 255, 0.6); font-size: 12px;">
-                            ${clientAddress}<br>${clientCity}<br>${clientPhone ? '📱 ' + clientPhone : ''}
-                        </p>
-                    </div>
-                    <div style="text-align: right;">
-                        <p style="color: rgba(255, 255, 255, 0.5); font-size: 11px;">Invoice #</p>
-                        <p style="color: var(--primary); font-size: 18px; font-weight: 700;">${invoiceNo}</p>
-                        <p style="color: rgba(255, 255, 255, 0.5); font-size: 11px; margin-top: 8px;">
-                            Issue Date: ${invoiceDate}<br>Due Date: ${dueDate}
-                        </p>
-                    </div>
-                </div>
-
-                <table style="width: 100%; border-collapse: collapse; margin: 20px 0;">
-                    <thead>
-                        <tr style="background: rgba(0, 240, 255, 0.1);">
-                            <th style="padding: 12px; text-align: left; color: var(--primary); border-bottom: 2px solid var(--primary);">Description</th>
-                            <th style="padding: 12px; text-align: right; color: var(--primary); border-bottom: 2px solid var(--primary);">Price</th>
-                            <th style="padding: 12px; text-align: right; color: var(--primary); border-bottom: 2px solid var(--primary);">Qty</th>
-                            <th style="padding: 12px; text-align: right; color: var(--primary); border-bottom: 2px solid var(--primary);">Discount</th>
-                            <th style="padding: 12px; text-align: right; color: var(--primary); border-bottom: 2px solid var(--primary);">Tax</th>
-                            <th style="padding: 12px; text-align: right; color: var(--primary); border-bottom: 2px solid var(--primary);">Amount</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        ${itemsHTML}
-                    </tbody>
-                </table>
-
-                <div style="display: flex; justify-content: flex-end; margin: 30px 0;">
-                    <div style="width: 300px;">
-                        <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--glass-border); color: rgba(255, 255, 255, 0.7);">
-                            <span>Subtotal:</span>
-                            <span>${document.getElementById('subtotal').textContent}</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--glass-border); color: rgba(255, 255, 255, 0.7);">
-                            <span>Discount:</span>
-                            <span>${document.getElementById('totalDiscount').textContent}</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--glass-border); color: rgba(255, 255, 255, 0.7);">
-                            <span>Tax:</span>
-                            <span>${document.getElementById('totalTax').textContent}</span>
-                        </div>
-                        <div style="display: flex; justify-content: space-between; padding: 15px 0; font-size: 16px; font-weight: 700; background: linear-gradient(135deg, var(--primary), var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
-                            <span>TOTAL:</span>
-                            <span>${document.getElementById('invoiceTotal').textContent}</span>
-                        </div>
-                    </div>
-                </div>
-
-                <div style="margin-top: 20px; padding-top: 15px; border-top: 1px solid var(--glass-border); color: rgba(255, 255, 255, 0.5); font-size: 11px;">
-                    <p><strong>Terms:</strong> Payment due within 30 days. Thank you for your business!</p>
-                </div>
-            `;
-
-            document.getElementById('invoicePreview').innerHTML = preview;
-        }
-
-        function saveInvoice() {
-            const invoiceNo = document.getElementById('invoiceNo').value;
-            if (!invoiceNo || invoiceNo === 'INV-') {
-                alert('❌ Please enter an invoice number');
-                return;
-            }
-
-            const rows = document.querySelectorAll('.item-row');
-            if (rows.length === 0 || !rows[0].querySelector('.item-description').value) {
-                alert('❌ Please add at least one item');
-                return;
-            }
-
-            const invoice = {
-                id: Date.now(),
-                invoiceNo: invoiceNo,
-                total: document.getElementById('invoiceTotal').textContent,
-                date: new Date().toLocaleDateString()
-            };
-
-            allInvoices.push(invoice);
-            localStorage.setItem('jmInvoices', JSON.stringify(allInvoices));
-
-            const msg = document.getElementById('successMsg');
-            msg.classList.add('show');
-            setTimeout(() => msg.classList.remove('show'), 3000);
-        }
-
-        function downloadPDF() {
-            const invoiceNo = document.getElementById('invoiceNo').value || 'Invoice';
-            const element = document.getElementById('invoicePreview');
-            const opt = {
-                margin: 10,
-                filename: `${invoiceNo}.pdf`,
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2 },
-                jsPDF: { orientation: 'portrait', unit: 'mm', format: 'a4' }
-            };
-
-            html2pdf().set(opt).from(element).save();
-        }
-
-        function printInvoice() {
-            window.print();
-        }
-
-        function clearForm() {
-            document.getElementById('invoiceNo').value = 'INV-';
-            document.getElementById('invoiceDate').valueAsDate = new Date();
-            document.getElementById('dueDate').value = '';
-            document.getElementById('clientName').value = '';
-            document.getElementById('clientEmail').value = '';
-            document.getElementById('clientAddress').value = '';
-            document.getElementById('clientCity').value = '';
-            document.getElementById('clientPhone').value = '';
-
-            const tbody = document.getElementById('itemsTableBody');
-            tbody.innerHTML = `
-                <tr class="item-row">
-                    <td><input type="text" class="item-description" placeholder="Item description"></td>
-                    <td><input type="number" class="item-price" placeholder="0.00" value="0" step="0.01" oninput="calculateAmounts()"></td>
-                    <td><input type="number" class="item-qty" placeholder="1" value="1" min="1" oninput="calculateAmounts()"></td>
-                    <td><input type="number" class="item-discount" placeholder="0" value="0" min="0" max="100" oninput="calculateAmounts()"></td>
-                    <td><input type="number" class="item-tax" placeholder="0" value="0" min="0" max="100" oninput="calculateAmounts()"></td>
-                    <td><input type="text" class="item-amount" value="0.00" readonly></td>
-                    <td><button type="button" class="btn-remove" onclick="removeItem(this)">Remove</button></td>
-                </tr>
-            `;
-
-            calculateAmounts();
-        }
-
-        // Initialize
-        calculateAmounts();
-    </script>
-</body>
-</html>
+/* ===== NEXAVERSE INVOICE MAKER CSS ===== */
+/* Modern dark theme with glassmorphism and neon accents */
+/* Author: Jain Mobile Invoice Maker */
+/* License: Free to use */
+
+@charset "utf-8";
+
+/* ===== RESET & GLOBAL STYLES ===== */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+:root {
+    /* Color Variables */
+    --primary: #00f0ff;           /* Cyan */
+    --secondary: #ff00d4;         /* Magenta */
+    --accent: #9d4edd;            /* Purple */
+    
+    /* Dark Theme */
+    --dark-1: #0a0a12;            /* Main background */
+    --dark-2: #12121f;            /* Secondary background */
+    --dark-3: #1a1a2e;            /* Tertiary background */
+    
+    /* Glass Effect */
+    --glass-bg: rgba(255, 255, 255, 0.03);
+    --glass-border: rgba(255, 255, 255, 0.08);
+    
+    /* Glows */
+    --glow-cyan: rgba(0, 240, 255, 0.4);
+    --glow-magenta: rgba(255, 0, 212, 0.4);
+}
+
+body {
+    font-family: 'Outfit', sans-serif;
+    background: var(--dark-1);
+    color: #ffffff;
+    overflow-x: hidden;
+    min-height: 100vh;
+}
+
+/* ===== AMBIENT BACKGROUND EFFECTS ===== */
+.ambient-bg {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+}
+
+.orb {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(80px);
+    animation: float 20s ease-in-out infinite;
+}
+
+.orb-1 {
+    width: 600px;
+    height: 600px;
+    background: radial-gradient(circle, var(--glow-cyan) 0%, transparent 70%);
+    top: -200px;
+    left: -200px;
+    animation-delay: 0s;
+}
+
+.orb-2 {
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, var(--glow-magenta) 0%, transparent 70%);
+    bottom: -150px;
+    right: -150px;
+    animation-delay: -7s;
+}
+
+@keyframes float {
+    0%, 100% { 
+        transform: translate(0, 0) scale(1); 
+    }
+    25% { 
+        transform: translate(50px, -30px) scale(1.05); 
+    }
+    50% { 
+        transform: translate(-30px, 50px) scale(0.95); 
+    }
+    75% { 
+        transform: translate(-50px, -20px) scale(1.02); 
+    }
+}
+
+/* Grid Overlay */
+.grid-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image:
+        linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 80px 80px;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* ===== MAIN CONTAINER ===== */
+.container {
+    position: relative;
+    z-index: 10;
+    padding: 40px 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+    min-height: 100vh;
+}
+
+/* ===== HEADER SECTION ===== */
+.header {
+    text-align: center;
+    margin-bottom: 60px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease-out 0.5s forwards;
+}
+
+@keyframes fadeUp {
+    from { 
+        opacity: 0; 
+        transform: translateY(30px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+.logo {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 20px;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 40px;
+    filter: drop-shadow(0 0 20px var(--glow-cyan));
+}
+
+.brand-name {
+    font-family: 'Syne', sans-serif;
+    font-size: 48px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    margin-bottom: 10px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-transform: uppercase;
+}
+
+.tagline {
+    font-size: 12px;
+    letter-spacing: 3px;
+    color: rgba(255, 255, 255, 0.5);
+    text-transform: uppercase;
+}
+
+/* ===== MENU GRID ===== */
+.menu-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 20px;
+    margin: 0 auto 60px;
+    max-width: 800px;
+}
+
+.menu-item {
+    height: 160px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+    opacity: 0;
+    transform: translateY(30px) scale(0.9);
+    animation: menuAppear 0.5s ease-out forwards;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.menu-item:nth-child(1) { animation-delay: 0.6s; }
+.menu-item:nth-child(2) { animation-delay: 0.7s; }
+.menu-item:nth-child(3) { animation-delay: 0.8s; }
+
+@keyframes menuAppear {
+    to { 
+        opacity: 1; 
+        transform: translateY(0) scale(1); 
+    }
+}
+
+.menu-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 50%;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.1) 0%, transparent 100%);
+    border-radius: 20px 20px 0 0;
+    pointer-events: none;
+}
+
+.menu-item:hover {
+    transform: translateY(-8px) scale(1.02);
+    background: rgba(0, 240, 255, 0.08);
+    border-color: var(--primary);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3), 0 0 30px rgba(0, 200, 220, 0.15);
+}
+
+.menu-badge {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 28px;
+    margin-bottom: 12px;
+    background: linear-gradient(135deg, rgba(0, 240, 255, 0.2), rgba(255, 0, 212, 0.15));
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    color: var(--primary);
+    text-shadow: 0 0 15px var(--glow-cyan);
+    position: relative;
+}
+
+.menu-badge::before {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 10%;
+    right: 10%;
+    height: 40%;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.25) 0%, transparent 100%);
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.menu-item:hover .menu-badge {
+    transform: scale(1.1);
+    box-shadow: 0 0 20px var(--glow-cyan);
+}
+
+.menu-title {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.6);
+    transition: all 0.3s ease;
+}
+
+.menu-item:hover .menu-title {
+    color: var(--primary);
+    letter-spacing: 3px;
+}
+
+/* ===== CONTENT SECTIONS ===== */
+.content-section {
+    display: none;
+    opacity: 0;
+    position: relative;
+    animation: sectionIn 0.6s ease-out forwards;
+}
+
+.content-section.active {
+    display: block;
+}
+
+@keyframes sectionIn {
+    from { 
+        opacity: 0; 
+        transform: translateY(40px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+/* ===== BACK BUTTON ===== */
+.back-btn {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    padding: 12px 24px;
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 50px;
+    color: rgba(255, 255, 255, 0.7);
+    font-family: 'Outfit', sans-serif;
+    font-size: 12px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 100;
+}
+
+.back-btn:hover {
+    background: rgba(0, 240, 255, 0.1);
+    border-color: var(--primary);
+    color: var(--primary);
+    box-shadow: 0 0 20px var(--glow-cyan);
+}
+
+/* ===== SECTION HEADER ===== */
+.section-header {
+    text-align: center;
+    margin-bottom: 40px;
+}
+
+.section-title {
+    font-family: 'Syne', sans-serif;
+    font-size: 42px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.section-subtitle {
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.5);
+    letter-spacing: 2px;
+}
+
+/* ===== GLASS CARDS ===== */
+.glass-card {
+    background: var(--glass-bg);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 30px;
+    position: relative;
+    overflow: hidden;
+    transition: all 0.4s ease;
+}
+
+.glass-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+}
+
+.glass-card:hover {
+    background: rgba(255, 255, 255, 0.05);
+    transform: translateY(-5px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+    border-color: rgba(0, 240, 255, 0.2);
+}
+
+/* ===== FORM STYLES ===== */
+.form-section {
+    margin-bottom: 30px;
+}
+
+.form-section h3 {
+    font-family: 'Syne', sans-serif;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: var(--primary);
+    letter-spacing: 1px;
+}
+
+.form-row {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+label {
+    margin-bottom: 8px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+input, 
+select, 
+textarea {
+    padding: 12px 16px;
+    background: rgba(255, 255, 255, 0.02);
+    backdrop-filter: blur(10px);
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    color: #ffffff;
+    font-family: 'Outfit', sans-serif;
+    font-size: 14px;
+    transition: all 0.3s ease;
+}
+
+input::placeholder, 
+textarea::placeholder {
+    color: rgba(255, 255, 255, 0.3);
+}
+
+input:focus, 
+select:focus, 
+textarea:focus {
+    outline: none;
+    border-color: var(--primary);
+    background: rgba(0, 240, 255, 0.05);
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.2);
+}
+
+textarea {
+    resize: vertical;
+    min-height: 100px;
+}
+
+/* ===== ITEMS TABLE ===== */
+.items-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 20px 0;
+}
+
+.items-table thead {
+    background: rgba(0, 240, 255, 0.05);
+}
+
+.items-table th {
+    padding: 12px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--primary);
+    border: 1px solid var(--glass-border);
+    font-size: 11px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.items-table td {
+    padding: 12px;
+    border: 1px solid var(--glass-border);
+}
+
+.items-table input {
+    width: 100%;
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.btn-remove {
+    background: rgba(255, 0, 0, 0.2);
+    color: var(--secondary);
+    padding: 8px 12px;
+    border: 1px solid rgba(255, 0, 212, 0.3);
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 10px;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+}
+
+.btn-remove:hover {
+    background: rgba(255, 0, 0, 0.3);
+    border-color: var(--secondary);
+    box-shadow: 0 0 15px rgba(255, 0, 212, 0.2);
+}
+
+.btn-add-item {
+    background: rgba(0, 240, 255, 0.1);
+    color: var(--primary);
+    padding: 10px 20px;
+    border: 1px solid var(--primary);
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    letter-spacing: 1px;
+    margin-top: 15px;
+    transition: all 0.3s ease;
+}
+
+.btn-add-item:hover {
+    background: rgba(0, 240, 255, 0.2);
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.25);
+}
+
+/* ===== SUMMARY BOX ===== */
+.summary-box {
+    background: rgba(0, 240, 255, 0.03);
+    border: 1px solid var(--glass-border);
+    padding: 20px;
+    border-radius: 12px;
+    margin: 20px 0;
+}
+
+.summary-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 12px;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.summary-row.total {
+    border-top: 1px solid var(--glass-border);
+    padding-top: 12px;
+    font-size: 18px;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+/* ===== ACTION BUTTONS ===== */
+.action-buttons {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin: 30px 0;
+}
+
+.btn-action {
+    padding: 12px 24px;
+    border: 1px solid var(--glass-border);
+    border-radius: 10px;
+    font-weight: 600;
+    cursor: pointer;
+    font-size: 12px;
+    letter-spacing: 1px;
+    transition: all 0.3s ease;
+    flex: 1;
+    min-width: 150px;
+    text-transform: uppercase;
+}
+
+/* Download Button */
+.btn-download {
+    background: rgba(0, 240, 255, 0.15);
+    color: var(--primary);
+    border-color: var(--primary);
+}
+
+.btn-download:hover {
+    background: rgba(0, 240, 255, 0.25);
+    box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+    transform: translateY(-2px);
+}
+
+/* Print Button */
+.btn-print {
+    background: rgba(157, 78, 221, 0.15);
+    color: var(--accent);
+    border-color: var(--accent);
+}
+
+.btn-print:hover {
+    background: rgba(157, 78, 221, 0.25);
+    box-shadow: 0 0 20px rgba(157, 78, 221, 0.3);
+    transform: translateY(-2px);
+}
+
+/* Save Button */
+.btn-save {
+    background: rgba(255, 0, 212, 0.15);
+    color: var(--secondary);
+    border-color: var(--secondary);
+}
+
+.btn-save:hover {
+    background: rgba(255, 0, 212, 0.25);
+    box-shadow: 0 0 20px rgba(255, 0, 212, 0.3);
+    transform: translateY(-2px);
+}
+
+/* Clear Button */
+.btn-clear {
+    background: transparent;
+    color: rgba(255, 255, 255, 0.5);
+    border-color: var(--glass-border);
+}
+
+.btn-clear:hover {
+    color: rgba(255, 255, 255, 0.8);
+    border-color: rgba(255, 255, 255, 0.3);
+}
+
+/* ===== PREVIEW BOX ===== */
+.preview-box {
+    background: var(--glass-bg);
+    border: 1px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 30px;
+    margin-top: 30px;
+    backdrop-filter: blur(20px);
+}
+
+.invoice-preview {
+    font-size: 13px;
+    line-height: 1.8;
+}
+
+.invoice-preview h4 {
+    color: var(--primary);
+    font-size: 16px;
+    margin-bottom: 15px;
+    margin-top: 20px;
+}
+
+/* ===== SUCCESS MESSAGE ===== */
+.success-msg {
+    background: rgba(0, 240, 255, 0.1);
+    color: var(--primary);
+    padding: 15px 20px;
+    border: 1px solid var(--primary);
+    border-radius: 10px;
+    margin-bottom: 20px;
+    display: none;
+    font-weight: 600;
+    letter-spacing: 1px;
+}
+
+.success-msg.show {
+    display: block;
+    animation: slideDown 0.5s ease-out;
+}
+
+@keyframes slideDown {
+    from { 
+        opacity: 0; 
+        transform: translateY(-20px); 
+    }
+    to { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+}
+
+@keyframes slideUp {
+    from { 
+        opacity: 1; 
+        transform: translateY(0); 
+    }
+    to { 
+        opacity: 0; 
+        transform: translateY(20px); 
+    }
+}
+
+/* ===== RESPONSIVE DESIGN ===== */
+@media (max-width: 768px) {
+    .menu-grid {
+        grid-template-columns: repeat(2, 1fr);
+        max-width: 100%;
+    }
+
+    .section-title {
+        font-size: 32px;
+    }
+
+    .action-buttons {
+        flex-direction: column;
+    }
+
+    .btn-action {
+        width: 100%;
+    }
+
+    .back-btn {
+        position: relative;
+        top: auto;
+        right: auto;
+        margin-bottom: 20px;
+        width: fit-content;
+    }
+
+    .brand-name {
+        font-size: 36px;
+    }
+
+    .form-row {
+        grid-template-columns: 1fr;
+    }
+
+    .container {
+        padding: 20px 10px;
+    }
+
+    .logo {
+        width: 60px;
+        height: 60px;
+        font-size: 30px;
+    }
+}
+
+@media (max-width: 480px) {
+    .menu-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .section-title {
+        font-size: 24px;
+    }
+
+    .brand-name {
+        font-size: 28px;
+        letter-spacing: 2px;
+    }
+
+    .glass-card {
+        padding: 15px;
+    }
+
+    .items-table {
+        font-size: 12px;
+    }
+
+    .items-table th,
+    .items-table td {
+        padding: 8px;
+    }
+
+    .btn-action {
+        min-width: 120px;
+        padding: 10px 16px;
+        font-size: 11px;
+    }
+}
+
+/* ===== PRINT STYLES ===== */
+@media print {
+    .menu-grid, 
+    .back-btn, 
+    .action-buttons, 
+    .form-section {
+        display: none;
+    }
+
+    .preview-box {
+        border: none;
+        background: transparent;
+        padding: 0;
+    }
+
+    .section-header {
+        display: none;
+    }
+
+    .glass-card {
+        background: transparent;
+        border: none;
+        padding: 0;
+    }
+
+    body {
+        background: #ffffff;
+        color: #000000;
+    }
+
+    .invoice-preview {
+        color: #000000;
+    }
+}
+
+/* ===== SCROLLBAR STYLES ===== */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--dark-2);
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(0, 240, 255, 0.3);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 240, 255, 0.5);
+}
